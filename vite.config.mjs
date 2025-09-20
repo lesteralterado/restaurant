@@ -10,6 +10,23 @@ export default defineConfig({
   build: {
     outDir: "build",
     chunkSizeWarningLimit: 2000,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom')) return 'vendor-react';
+            return 'vendor';
+          }
+          if (id.includes('src/pages')) {
+            const parts = id.split('/');
+            const pageIndex = parts.findIndex(p => p === 'pages');
+            if (pageIndex !== -1 && parts[pageIndex + 1]) {
+              return `page-${parts[pageIndex + 1]}`;
+            }
+          }
+        }
+      }
+    }
   },
   plugins: [tsconfigPaths(), react(), tagger()],
   server: {
